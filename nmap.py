@@ -63,9 +63,9 @@ INTELLIGENCE_KEYWORDS = [
 ]
 
 SENSITIVE_REGEX = {
-    "E-Posta Adresi": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}",
-    "Gizli API Anahtarı (Token)": r"(?:key|token|secret|password|passwd|auth)(?:[\s|'|\"]*)=(?:[\s|'|\"]*)([a-zA-Z0-9_\-]{16,64})",
-    "Veritabanı Bağlantı Cümlesi": r"(?:mongodb|mysql|postgresql|oracle|mssql):\/\/[^\s]+"
+    "Email Address": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}",
+    "Hidden API Key (Token)": r"(?:key|token|secret|password|passwd|auth)(?:[\s|'|\"]*)=(?:[\s|'|\"]*)([a-zA-Z0-9_\-]{16,64})",
+    "Database Connection String": r"(?:mongodb|mysql|postgresql|oracle|mssql):\/\/[^\s]+"
 }
 
 USER_AGENTS = [
@@ -101,11 +101,11 @@ def wait_for_internet(target_name="Sistem"):
                 check=True
             )
             if not first_drop:
-                print(f"\n{BOLD_GREEN}[✓] İNTERNET GERİ GELDİ: [{target_name}] için tarama kaldığı yerden devam ediyor...{RESET}")
+                print(f"\n{BOLD_GREEN}[✓] INTERNET CONNECTION RESTORED: Resuming scan for [{target_name}]...{RESET}")
             return True
         except (subprocess.CalledProcessError, Exception):
             if first_drop:
-                print(f"\n{YELLOW}[!] BAĞLANTI KESİLDİ: [{target_name}] istasyonunda internet koptu. Sistem donduruldu, bekleniyor...{RESET}", end="", flush=True)
+                print(f"\n{YELLOW}[!] CONNECTION LOST: Internet connection interrupted at [{target_name}]. System paused, waiting...{RESET}", end="", flush=True)
                 first_drop = False
             else:
                 print(".", end="", flush=True)
@@ -114,22 +114,22 @@ def wait_for_internet(target_name="Sistem"):
 
 def check_dependencies():
     if os.getuid() != 0:
-        print(f"{RED}[-] Hata: ROOT yetkisi gereklidir! Lütfen bu scripti 'sudo python3 nmap.py' komutuyla çalıştırın.{RESET}")
-        input("\n[!] Kapanışı engellemek için ENTER tuşuna basın...")
+        print(f"{RED}[-] Error: Root privileges are required! Please run this script using 'sudo python3 nmap.py'.{RESET}")
+        input("\n[!] Press ENTER to keep the window open...")
         sys.exit(1)
         
     try:
         subprocess.run(["nmap", "-V"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError:
-        print(f"{RED}[-] Hata: Nmap sistemde yüklü değil!{RESET}")
-        input("\n[!] Kapanışı engellemek için ENTER tuşuna basın...")
+        print(f"{RED}[-] Error: Nmap is not installed on the system!{RESET}")
+        input("\n[!] Press ENTER to keep the window open...")
         sys.exit(1)
         
     try:
         subprocess.run(["tshark", "-v"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError:
-        print(f"{RED}[-] Hata: TShark (Wireshark) sistemde yüklü değil!{RESET}")
-        input("\n[!] Kapanışı engellemek için ENTER tuşuna basın...")
+        print(f"{RED}[-] Error: TShark (Wireshark) is not installed on the system!{RESET}")
+        input("\n[!] Press ENTER to keep the window open...")
         sys.exit(1)
         
     if not os.path.exists(OUTPUT_DIR):
@@ -202,13 +202,13 @@ def ai_analyze_headers(headers):
                 detected_frameworks.append(framework)
                 break
                 
-    return ", ".join(detected_frameworks) if detected_frameworks else "Saptanamadı (Özel/Güvenli Altyapı)"
+    return ", ".join(detected_frameworks) if detected_frameworks else "Not Detected (Private/Secure Infrastructure)"
 
 def fetch_web_intelligence(target, port):
     wait_for_internet(target)
     intel_data = {
-        "title": "Bilinmiyor", 
-        "server": "Bilinmiyor", 
+        "title": "Unknown", 
+        "server": "Unknown", 
         "ai_framework": "Analyzing...",
         "root_keywords": [], 
         "detected_links": [], 
@@ -247,21 +247,21 @@ def fetch_web_intelligence(target, port):
         except Exception:
             continue
     if response_headers:
-        intel_data["server"] = response_headers.get("Server", "Gizlenmiş / Belirtilmemiş")
+        intel_data["server"] = response_headers.get("Server", "Hidden / Not Disclosed")
         intel_data["ai_framework"] = ai_analyze_headers(response_headers)
     else:
         if port in ["80", "443"]:
-            intel_data["server"] = "Cloudflare http proxy (WAF Arkasında / İstek Kesildi)"
-            intel_data["ai_framework"] = "WAF Arkasına Gizlenmiş"
+            intel_data["server"] = "Cloudflare HTTP Proxy (Behind WAF / Request Blocked)"
+            intel_data["ai_framework"] = "Hidden Behind WAF"
         elif port == "3306":
             intel_data["server"] = "MySQL Database Server"
         elif port == "5432":
             intel_data["server"] = "PostgreSQL Database Server"
         elif port in ["9100", "9101", "9102", "9103"]:
-            intel_data["server"] = "Jetdirect HP Printer Service (Web Arayüzü Yok)"
+            intel_data["server"] = "HP Jetdirect Printer Service (No Web Interface)"
         else:
-            intel_data["server"] = "Bilinmeyen Servis / Ağ Korumalı"
-            intel_data["ai_framework"] = "Sola Bağlantı Yok"
+            intel_data["server"] = "Unknown Service / Network Protected"
+            intel_data["ai_framework"] = "No Left-Side Connection"
 
     if not html_content:
         return intel_data
@@ -274,7 +274,7 @@ def fetch_web_intelligence(target, port):
         intel_data["title"] = title_match.group(1).strip()
     else:
         if "cloudflare" in html_content_lower:
-            intel_data["title"] = "Cloudflare DDOS Koruması / Güvenlik Duvarı Eşiği"
+            intel_data["title"] = "Cloudflare DDoS Protection / Firewall Threshold"
     
     for word in INTELLIGENCE_KEYWORDS:
         if word in html_content_lower:
@@ -350,10 +350,10 @@ def build_and_save_single_list(local_index_path, chosen_index_name):
 
 <div class="control-panel">
     <input type="text" id="reconSearch" class="search-box" placeholder="🔍 Search live across Target Domains, IPs, Ports, Services, or Exposed Data..." onkeyup="filterReconReport()">
-    <button class="filter-btn active" id="btn-all" onclick="setFilter('all')">HEPSİNİ GÖSTER</button>
-    <button class="filter-btn" id="btn-waf" onclick="setFilter('waf')">SADECE WAF'LILAR</button>
-    <button class="filter-btn" id="btn-crit" onclick="setFilter('crit')">KRİTİK PORT BULUNANLAR</button>
-    <button class="filter-btn" id="btn-leak" onclick="setFilter('leak')">VERİ SIZINTISI OLANLAR</button>
+    <button class="filter-btn active" id="btn-all" onclick="setFilter('all')">SHOW ALL</button>
+    <button class="filter-btn" id="btn-waf" onclick="setFilter('waf')">WAF-PROTECTED ONLY</button>
+    <button class="filter-btn" id="btn-crit" onclick="setFilter('crit')">CRITICAL PORTS FOUND</button>
+    <button class="filter-btn" id="btn-leak" onclick="setFilter('leak')">DATA LEAKS</button>
 </div>
 """
     for target, data in sorted(global_results.items()):
@@ -365,8 +365,8 @@ def build_and_save_single_list(local_index_path, chosen_index_name):
         
         html_content += f"""
         <div class="target-box" data-waf="{has_waf}" data-critical="{has_critical}" data-leak="%%HAS_LEAK%%">
-            <div class="target-header">HEDEF IP / DOMAIN: {target}{target_ip_display}</div>
-            <div class="stats-badge">📦 Wireshark Trafik: {data['packet_count']} Paket</div>
+            <div class="target-header">TARGET IP / DOMAIN: {target}{target_ip_display}</div>
+            <div class="stats-badge">📦 Wireshark Traffic: {data['packet_count']} Paket</div>
             <div class="waf-badge waf-turbo">{data['mode_desc']}</div>"""
             
         if "web_intelligence" in data and data["web_intelligence"]:
@@ -374,29 +374,29 @@ def build_and_save_single_list(local_index_path, chosen_index_name):
             for port, intel in data["web_intelligence"].items():
                 html_content += f"""
             <div class="intel-title">🌐 Suspicious / Hidden Web Management Interface Finding (Port {port}):</div>
-            <div><b>Sayfa Başlığı (Title):</b> {intel['title']}</div>
-            <div><b>Sunucu Teknolojisi (Server):</b> {intel['server']}</div>
-            <div style="color: #00ff66;"><b>🤖 AI Framework Teşhisi (Cookie/Header):</b> {intel.get('ai_framework', 'Saptanamadı')}</div>"""
+            <<div><b>Page Title:</b> {intel['title']}</div>
+            <div><b>Server Technology (Server):</b> {intel['server']}</div>
+            <div style="color: #00ff66;"><b>🤖 AI Framework Detection (Cookie/Header):</b> {intel.get('ai_framework', 'Not Detected')}</div>"""
                 
                 if intel["root_keywords"]:
-                    html_content += "\n            <div><b>Ana Port Kök Dizininde Yakalanan İpuçları:</b> "
+                    html_content += "\n            <div><b>Clues Detected in the MAIN PORT Root Directory:</b> "
                     for kw in intel["root_keywords"]:
                         html_content += f'<span class="intel-keyword">{kw}</span>'
                     html_content += "</div>"
                 
                 if intel["detected_links"]:
-                    html_content += "\n            <div><b>Doğrulanmış Tıklanabilir Gizli Paneller:</b>"
+                    html_content += "\n            <div><b>Verified Clickable Hidden Panels:</b>"
                     for link in intel["detected_links"]:
                         html_content += f'\n            <a class="intel-link" href="{link}" target="_blank">🔗 {link}</a>'
                         if link in intel["link_keywords"] and intel["link_keywords"][link]:
                             kws_str = ", ".join(intel["link_keywords"][link])
-                            html_content += f'\n            <div class="link-details">↳ İçerik Eşleşmesi: {kws_str}</div>'
+                            html_content += f'\n            <div class="link-details">↳ Content Match: {kws_str}</div>'
                     html_content += "</div>"
                     
                 if "sensitive_data" in intel and intel["sensitive_data"]:
                     has_leak = "true"
                     html_content += '\n        <div class="sensitive-box">'
-                    html_content += '\n            <div class="sensitive-title">🚨 GİZLİ VERİ SIZINTISI (KOD İÇERİĞİNDEN KAZINAN):</div>'
+                    html_content += '\n            <div class="sensitive-title">🚨 HIDDEN DATA EXPOSURE (EXTRACTED FROM SOURCE CODE):</div>'
                     for d_type, d_list in intel["sensitive_data"].items():
                         html_content += f"<div><b>{d_type}:</b> {', '.join(d_list)}</div>"
                     html_content += '\n        </div>'
@@ -416,7 +416,7 @@ def build_and_save_single_list(local_index_path, chosen_index_name):
                         css_class = "port-line port-general"
                 html_content += f'<span class="{css_class}">{raw_text}</span>\n'
         else:
-            html_content += '<span class="info-line">Doğrulanmış (Gerçek) açık port saptanmadı. Tüm sahte portlar elendi.</span>\n'
+            html_content += '<span class="info-line">No verified open ports detected. All false-positive ports were filtered out.</span>\n'
             
         html_content += "</pre>\n</div>\n"
         
@@ -542,16 +542,16 @@ def deep_verify_fake_ports(target, suspect_ports, is_lan=False):
                         port_num = match.group(1)
                         if "?" in line_lower or "afs3" in line_lower or "jetdirect" in line_lower:
                             suspicious_count += 1
-                            temp_lines.append(("tcp", port_num, f"{line.strip()} (ŞÜPHELİ SERVİS - MANUAL RAPOR ANALİZİ GEREKLİ)", True))
+                            temp_lines.append(("tcp", port_num, f"{line.strip()} (SUSPICIOUS SERVICE - MANUAL REPORT ANALYSIS REQUIRED)", True))
                         else:
                             temp_lines.append(("tcp", port_num, line.strip(), False))
                 else:
                     match_fake = re.search(r"(\d+)/tcp", line)
                     if match_fake:
-                        print(f"   {RED}[ANOMALİ ELENDİ] -> Güvenlik Duvarı Tuzağı Temizlendi: {line.strip()}{RESET}")
+                        print(f"   {RED}[ANOMALY FILTERED] -> Firewall false positive removed: {line.strip()}{RESET}")
                         
         if suspicious_count > 5:
-            print(f"   {RED}[⚠️ GÜVENLİK DUVARI ATAĞI ENGELLENDİ] -> Tüm sahte portlar çöpe atılıyor!{RESET}")
+            print(f"   {RED}[⚠️ FIREWALL BLOCK DETECTED] -> All false-positive ports are being discarded!{RESET}")
             for proto, p_num, raw_text, is_susp in temp_lines:
                 if not is_susp:  
                     real_ports.append(p_num)
@@ -561,7 +561,7 @@ def deep_verify_fake_ports(target, suspect_ports, is_lan=False):
                 real_ports.append(p_num)
                 html_lines.append((proto, p_num, raw_text))
                 if is_susp:
-                    print(f"   {YELLOW}[🚨 GİZLİ POTANSİYEL ZAFİYET] -> Tekil Şüpheli Port Tutuldu: {raw_text}{RESET}")
+                    print(f"   {YELLOW}[🚨 POTENTIAL SECURITY ISSUE] -> Individual suspicious port retained: {raw_text}{RESET}")
                     
     except Exception:
         pass
@@ -598,9 +598,9 @@ def upload_report_to_ftp(local_file_path, remote_file_name):
                             except Exception: pass
             with open(local_file_path, "rb") as file_to_upload:
                 ftp.storbinary(f"STOR {remote_file_name}", file_to_upload)
-            print(f"{BOLD_GREEN}[✓] {remote_file_name} başarıyla XAMPP htdocs/{FTP_CWD}/ altına aktarıldı!{RESET}")
+            print(f"{BOLD_GREEN}[✓] {remote_file_name} successfully transferred to XAMPP htdocs/{FTP_CWD}/!{RESET}")
     except Exception as e:
-        print(f"{YELLOW}[!] FTP Transfer Warning ({remote_file_name}): Detay: {e}{RESET}")
+        print(f"{YELLOW}[!] FTP Transfer Warning ({remote_file_name}): Details: {e}{RESET}")
 
 def scan_single_target(target, thread_id, checkpoint_data):
     current_checkpoint = load_checkpoint()
@@ -639,12 +639,12 @@ def scan_single_target(target, thread_id, checkpoint_data):
         evasion_args_tcp = ["--max-retries", "1", "--min-rate", "30", "--send-ip"]
         evasion_args_udp = ["--max-retries", "1", "--min-rate", "30"]
     elif USE_PROXY:
-        print(f"   {BOLD_GREEN}[🚀 PROXY TURBO HIZ REJİMİ]{RESET} Hız stabilize ediliyor.")
+        print(f"   {BOLD_GREEN}[🚀 PROXY TURBO SPEED MODE]{RESET} Stabilizing speed.")
         target_tcp_param = "-p-" 
         evasion_args_tcp = ["--min-rate", "40", "--max-retries", "2"]
         evasion_args_udp = ["--min-rate", "40", "--max-retries", "1"]
     elif is_waf_detected:
-        print(f"   {YELLOW}[🛡️ WAF KORUMA REJİMİ]{RESET} Port kaçırmayı önlemek için 'Gizlilik' moduna geçildi.")
+        print(f"   {YELLOW}[🛡️ WAF PROTECTION MODE]{RESET} Switched to 'Stealth' mode to prevent port detection issues.")
         try:
             if os.path.exists(WAF_PORT_WORDLIST):
                 with open(WAF_PORT_WORDLIST, "r", encoding="utf-8") as wf:
@@ -668,7 +668,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
         ]
         evasion_args_udp = ["--scan-delay", "100ms", "--max-parallelism", "2", "--max-retries", "2", "--min-rate", "10"]
     else:
-        print(f"   {BOLD_WHITE}[🔍 GENEL DIŞ SUNUCU REJİMİ]{RESET} Kararlı tarama modu...")
+        print(f"   {BOLD_WHITE}[🔍 GENERAL EXTERNAL SERVER MODE]{RESET} Stable scanning mode...")
         target_tcp_param = "-p-" 
         evasion_args_tcp = ["--min-rate", "30", "--max-retries", "3"]
         evasion_args_udp = ["--min-rate", "30", "--max-retries", "2"]
@@ -696,7 +696,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
                 if not line and process.poll() is not None: break
                 if line:
                     if "open" in line.lower() and "/tcp" in line.lower() and "filtered" not in line.lower():
-                        print(f"   {GREEN}[CANLI TCP BULUNDU] -> {line.strip()}{RESET}")
+                        print(f"   {GREEN}[LIVE TCP PORT DETECTED] -> {line.strip()}{RESET}")
                         match_open = re.search(r"(\d+)/tcp", line)
                         if match_open:
                             nmap_detected_tcp.append(match_open.group(1))
@@ -728,7 +728,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
             except Exception:
                 pass
 
-        print(f"{BLUE}[*] [{target}] UDP Canlı Tarama Başlatıldı ({target_udp_param})...{RESET}")
+        print(f"{BLUE}[*] [{target}] Starting UDP Live Scan ({target_udp_param})...{RESET}")
         
 
         nmap_udp_cmd = ["nmap", "-sU", target_udp_param] + evasion_args_udp + ["-Pn", "-n", target]
@@ -738,7 +738,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
                 line = udp_process.stdout.readline()
                 if not line and udp_process.poll() is not None: break
                 if line and "open" in line.lower() and "/udp" in line.lower() and "filtered" not in line.lower():
-                    print(f"   {BLUE}[CANLI UDP BULUNDU] -> {line.strip()}{RESET}")
+                    print(f"   {BLUE}[LIVE UDP PORT DETECTED] -> {line.strip()}{RESET}")
                     match_udp = re.search(r"(\d+)/udp", line)
                     if match_udp:
                         final_verified_ports.append(("udp", match_udp.group(1), line.strip()))
@@ -748,7 +748,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
 
 
     if not nmap_detected_tcp and not is_lan:
-        print(f"   {YELLOW}[🛡️ DETECTED BLACKHOLE] -> {target} için hiç açık port bulunamadı! WAF bypass modunda HTTP/HTTPS servisleri doğrudan yoklanıyor...{RESET}")
+        print(f"   {YELLOW}[🛡️ DETECTION STATUS] -> No open ports detected for {target}. HTTP/HTTPS service status requires verification.{RESET}")
         for emergency_port in ["80", "443"]:
             proto_test = "https" if emergency_port == "443" else "http"
             try:
@@ -758,7 +758,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
                     timeout=4, 
                     verify=False
                 )
-                print(f"   {BOLD_GREEN}[✓][WAF BYPASS] -> {emergency_port} portunun aslında AÇIK ve CANLI olduğu doğrulandı!{RESET}")
+                print(f"   {BOLD_GREEN}[✓][PORT VERIFICATION] -> Port {emergency_port} was verified as OPEN and ACTIVE!{RESET}")
                 nmap_detected_tcp.append(emergency_port)
             except Exception:
                 pass
@@ -776,22 +776,22 @@ def scan_single_target(target, thread_id, checkpoint_data):
     target_web_intelligence = {}
     for p in real_ports:
         if p in WEB_PORTS or any(p == p_num for proto, p_num, raw_text in tcp_html_lines if "?" in raw_text or "jetdirect" in raw_text or "afs3" in raw_text):
-            print(f"   {YELLOW}[*] Pasif İstihbarat ve Hassas Veri Analizi Yapılıyor (Port {p})...{RESET}")
+            print(f"   {YELLOW}[*] Passive Intelligence and Sensitive Data Analysis in (Port {p})...{RESET}")
             intel_res = fetch_web_intelligence(target, p)
             target_web_intelligence[p] = intel_res
-            print(f"       ↳ {CYAN}[Başlık]{RESET} {intel_res['title']} | {CYAN}[Sunucu]{RESET} {intel_res['server']}")
+            print(f"       ↳ {CYAN}[Title]{RESET} {intel_res['title']} | {CYAN}[Server]{RESET} {intel_res['server']}")
             if intel_res["detected_links"]:
                 for link in intel_res["detected_links"]:
-                    print(f"       ↳ {BLUE}[Gizli Yönetim Paneli Sızdı]{RESET} URL: {link}")
+                    print(f"       ↳ {BLUE}[Hidden Management Interface Detected]{RESET} URL: {link}")
             if intel_res["sensitive_data"]:
                 for d_type, d_list in intel_res["sensitive_data"].items():
-                    print(f"       ↳ {RED}[HASSAS VERİ SIZINTISI]{RESET} {d_type}: {', '.join(d_list)}")
+                    print(f"       ↳ {RED}[SENSITIVE DATA EXPOSURE]{RESET} {d_type}: {', '.join(d_list)}")
     for proto, p_num, raw_text in tcp_html_lines:
         final_text = raw_text
         if p_num in WEB_PORTS or "?" in raw_text or "jetdirect" in raw_text or "afs3" in raw_text:
             proto_link = "https" if p_num in ["443", "8443", "9443", "2083", "2087"] else "http"
             base_port_url = f"{proto_link}://{target}:{p_num}"
-            final_text = f"{raw_text} -> [🔗 ANA PORT: {base_port_url}/]"
+            final_text = f"{raw_text} -> [🔗 MAIN PORT: {base_port_url}/]"
             
             if p_num in target_web_intelligence and target_web_intelligence[p_num]["detected_links"]:
                 sub_links = []
@@ -809,12 +809,12 @@ def scan_single_target(target, thread_id, checkpoint_data):
     if is_lan and not tcp_html_lines and nmap_detected_tcp:
         for p in nmap_detected_tcp:
             proto_link = "https" if p in ["443", "8443", "9443"] else "http"
-            final_verified_ports.append(("tcp", p, f"{p}/tcp open unknown_service -> [🔗 ANA PORT: {proto_link}://{target}:{p}/]"))
+            final_verified_ports.append(("tcp", p, f"{p}/tcp open unknown_service -> [🔗 MAIN PORT: {proto_link}://{target}:{p}/]"))
 
     save_checkpoint(target, "udp")
     total_ports = len(final_verified_ports)
-    current_mode = "Lokal Ağ Rejimi" if is_lan else waf_name
-    mode_desc = f"ANALİZ TAMAMLANDI: (Gerçek Açık Port: {total_ports} | Altyapı: {current_mode})"
+    current_mode = "Local Network Mode" if is_lan else waf_name
+    mode_desc = f"ANALYSIS COMPLETED: (Verified Open Port: {total_ports} | Altyapı: {current_mode})"
 
     resolved_ip_address = target
     if not re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", target):
@@ -841,13 +841,13 @@ def periodic_html_saver(local_path, report_name, remote_name):
             break
         with checkpoint_lock:
             if global_results:
-                print(f"\n{YELLOW}[⏳ OTO-KAYIT] -> 10 dakikalık periyot doldu. Yerel HTML raporu güncelleniyor...{RESET}")
+                print(f"\n{YELLOW}[⏳ AUTO-SAVE] -> 10-minute interval reached. Updating local HTML report...{RESET}")
                 try:
                     build_and_save_single_list(local_path, report_name)
                     upload_report_to_ftp(local_path, remote_name)
-                    print(f"{GREEN}[✓] Otomatik yedekleme raporu başarıyla FTP ve diske yazıldı.{RESET}\n")
+                    print(f"{GREEN}[✓] Automatic backup report successfully saved to FTP and local disk.{RESET}\n")
                 except Exception as e:
-                    print(f"{RED}[-] Otomatik yedekleme esnasında rapor yazılamadı: {e}{RESET}\n")
+                    print(f"{RED}[-] Failed to write the report during automatic backup: {e}{RESET}\n")
 
 
 def run_scan():
@@ -855,9 +855,9 @@ def run_scan():
     check_dependencies()
     
     if not os.path.exists(INPUT_FILE):
-        print(f"{RED}[-] Hata: Giriş dosyası '{INPUT_FILE}' dizinde bulunamadı!{RESET}")
-        print(f"{YELLOW}[!] Lütfen scriptle aynı klasöre 'domainler.txt' adında bir dosya açıp hedefleri alt alta yazın.{RESET}")
-        input("\n[!] Kapanışı engellemek için ENTER tuşuna basın...")
+        print(f"{RED}[-] Error: Input file '{INPUT_FILE}' was not found in the directory!{RESET}")
+        print(f"{YELLOW}[!] Please create a file named 'domainler.txt' in the same directory as the script and list the targets, one per line.{RESET}")
+        input("\n[!] Press ENTER to prevent the window from closing...")
         sys.exit(1)
         
     checkpoint_data = load_checkpoint()
@@ -866,7 +866,7 @@ def run_scan():
         targets = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
         
     if not targets:
-        print(f"{RED}[-] Hata: '{INPUT_FILE}' dosyasının içi tamamen boş!{RESET}")
+        print(f"{RED}[-] Error: The '{INPUT_FILE}' file is completely empty!{RESET}")
         input("\n[!] Kapanışı engellemek için ENTER tuşuna basın...")
         sys.exit(1)
 
@@ -877,7 +877,7 @@ def run_scan():
 
     random.shuffle(targets)
     if checkpoint_data:
-        print(f"{BOLD_GREEN}[*] HAFIZA SİSTEMİ: Kaldığı yerden devam etme hafızası yüklendi.{RESET}")
+        print(f"{BOLD_GREEN}[*] MEMORY SYSTEM: Resume checkpoint loaded successfully.{RESET}")
         for t, content in checkpoint_data.items():
             if isinstance(content, dict) and content.get("results"):
                 global_results[t] = content["results"]
@@ -887,7 +887,7 @@ def run_scan():
         upload_report_to_ftp(local_index_path, index_file_name)
     
     print(f"\n{BOLD_WHITE}=================================================================={RESET}")
-    print(f"{CYAN}[*] SİBER KEŞİF BAŞLADI | Toplam {len(targets)} Hedef Sırayla Tekli İşleniyor...{RESET}")
+    print(f"{CYAN}[*] RECONNAISSANCE STARTED | 	Processing {len(targets)} Target Sequentially...{RESET}")
     print(f"{BOLD_WHITE}=================================================================={RESET}\n")
     
     saver_thread = threading.Thread(
@@ -906,19 +906,19 @@ def run_scan():
                 with checkpoint_lock:
                     build_and_save_single_list(local_index_path, clean_report_name)
             except Exception as e: 
-                print(f"[-] Thread Yürütme hatası: {e}")
+                print(f"[-] Thread execution error: {e}")
                 
-    print(f"\n{GREEN}[*] All sequential scans completed. Terminal Çıktı Paneli Hazırlanıyor...{RESET}\n")
+    print(f"\n{GREEN}[*] All sequential scans completed. Preparing Terminal Output Panel...{RESET}\n")
     
     if global_results:
-        print(f"{BOLD_WHITE}============ HEDEF DOMAIN / IP LISTESI ============{RESET}")
+        print(f"{BOLD_WHITE}============ TARGET DOMAIN / IP LIST ============{RESET}")
         for target, data in sorted(global_results.items()):
-            print(f"{GREEN}[ Hedef ]{RESET} {target:<30} | {YELLOW}Durum:{RESET} {data['mode_desc']}")
+            print(f"{GREEN}[ Target ]{RESET} {target:<30} | {YELLOW}Status:{RESET} {data['mode_desc']}")
         print(f"{BOLD_WHITE}==================================================={RESET}\n")
 
-        print(f"{BOLD_WHITE}============ SAPTANAN GERÇEK PORT DETAYLARI ============{RESET}")
+        print(f"{BOLD_WHITE}============ VERIFIED OPEN PORT DETAILS ============{RESET}")
         for target, data in sorted(global_results.items()):
-            print(f"\n{CYAN}🔗 {target} için Bulunan Gerçek Sızma Noktaları:{RESET}")
+            print(f"\n{CYAN}🔗 Verified Open Ports Found for {target}:{RESET}")
             if data["ports"]:
                 for proto, p_num, raw_text in data["ports"]:
                     color = BLUE if proto == "udp" else GREEN
@@ -930,19 +930,19 @@ def run_scan():
         build_and_save_single_list(local_index_path, clean_report_name)
         time.sleep(1)
         upload_report_to_ftp(local_index_path, index_file_name)
-        print(f"\n{BOLD_GREEN}[+++] TÜM RECON SÜRECİ EKSİKSİZ TAMAMLANDI!{RESET}")
-        print(f"{BOLD_GREEN}[+] Dinamik Rapor Linki: http://{FTP_HOST}/{FTP_CWD}/{index_file_name}{RESET}")
+        print(f"\n{BOLD_GREEN}[+++] THE ENTIRE RECONNAISSANCE PROCESS COMPLETED SUCCESSFULLY!{RESET}")
+        print(f"{BOLD_GREEN}[+] Dynamic Report URL: http://{FTP_HOST}/{FTP_CWD}/{index_file_name}{RESET}")
     else:
-        print(f"{RED}[-] Hata: Listelenecek hiçbir tarama verisi toparlanamadı.{RESET}")
+        print(f"{RED}[-] Error: No scan data was collected for display.{RESET}")
 
 
     scanning_active = False  
-    print(f"\n{BOLD_GREEN}[✓] Arka plan zamanlayıcıları kapatıldı. Program sonlandırılıyor...{RESET}")
+    print(f"\n{BOLD_GREEN}[✓] Background timers stopped. Shutting down the program...{RESET}")
 
 if __name__ == "__main__":
     try:
         run_scan()
     except KeyboardInterrupt:
         scanning_active = False
-        print(f"\n{RED}[-] Kullanıcı iptali alındı. Güvenli çıkış yapılıyor.{RESET}")
+        print(f"\n{RED}[-] User cancellation received. Exiting safely.{RESET}")
         sys.exit(0)
