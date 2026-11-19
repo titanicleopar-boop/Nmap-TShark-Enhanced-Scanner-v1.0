@@ -28,7 +28,25 @@ Developed through months of experimentation, testing, and continuous improvement
 
 The framework combines active network scanning with packet-level traffic analysis to provide additional visibility into discovered network services.
 
-The goal is to deliver an integrated and practical reconnaissance environment for authorized security research.
+### 🌐 Bulk Domain & Subdomain Scanning
+
+The scanner supports scanning multiple domains and subdomains through a simple text-based input system.
+
+- Add one or multiple domains or subdomains to `domainler.txt`.
+- Supports both individual targets and large target lists.
+- Automatically processes targets sequentially.
+- No need to manually start each domain scan.
+
+### 🔄 Automatic Scan Recovery
+
+The framework is designed to handle unexpected interruptions and resume scanning progress.
+
+- **Internet Disconnection:** Scanning pauses when the internet connection is lost and resumes when connectivity is restored.
+- **Power Outage:** Saved progress allows scanning to continue after the computer restarts.
+- **System Shutdown:** Previously completed progress is preserved.
+- **Automatic Recovery:** Restarting the scanner allows it to continue from its saved progress instead of starting everything from the beginning.
+
+The goal is to deliver an integrated and practical reconnaissance environment for authorized security research, combining intelligent scanning, traffic analysis, bulk target processing, and recovery mechanisms.
 
 ---
 
