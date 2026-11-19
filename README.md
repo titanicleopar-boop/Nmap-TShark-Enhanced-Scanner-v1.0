@@ -85,7 +85,7 @@ The goal is to provide an integrated and practical reconnaissance environment fo
 
 # 🚀 KEY FEATURES
 
-<img width="50%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/c8ab1623-4365-439f-b131-5bcc7f67940e" />
+<img width="100%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/c8ab1623-4365-439f-b131-5bcc7f67940e" />
 
 ### 🔍 Advanced Port Detection
 
