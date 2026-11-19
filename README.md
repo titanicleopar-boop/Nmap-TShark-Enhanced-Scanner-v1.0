@@ -1,4 +1,4 @@
-\<div align="center">
+
 
 # 🛡️ NMAP-TSHARK ENHANCED SCANNER
 
@@ -6,13 +6,7 @@
 
 **Developed by ByRooT**
 
-\
-
 <img width="50%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/03af413d-1bbe-4a1e-93f2-652cee607e73">
-
-
-
-\
 
 
 **Intelligent Port Detection | Traffic Analysis | False-Positive Filtering**
@@ -25,7 +19,7 @@
 
 ### 📊 AUTOMATED REPORTING
 
-\</div>
+
 
 ---
 
@@ -43,9 +37,7 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 
 # 🚀 KEY FEATURES
 
-\<table>
-\<tr>
-\<td width="50%">
+
 
 ### 🔍 Advanced Port Detection
 
@@ -56,8 +48,7 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 - Intelligent filtering
 - False-positive reduction
 
-\</td>
-\<td width="50%">
+
 
 ### 📡 Network Traffic Analysis
 
@@ -68,11 +59,6 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 - Protocol identification
 - Traffic inspection
 
-\</td>
-\</tr>
-
-\<tr>
-\<td width="50%">
 
 ### 🧠 Intelligent Filtering
 
@@ -81,8 +67,6 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 - False-positive reduction mechanisms
 - Scan result verification
 
-\</td>
-\<td width="50%">
 
 ### 🖥️ Service Identification
 
@@ -91,11 +75,6 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 - HTTP/HTTPS inspection
 - Server response analysis
 
-\</td>
-\</tr>
-
-\<tr>
-\<td width="50%">
 
 ### 🌐 Web Reconnaissance
 
@@ -105,8 +84,6 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 - CDN detection indicators
 - Endpoint discovery integration
 
-\</td>
-\<td width="50%">
 
 ### 📊 Automated Reporting
 
@@ -117,7 +94,6 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 - Checkpoint management
 - FTP report transfer
 
-\</td> \</tr> \</table>
 
 ---
 
@@ -351,7 +327,6 @@ Users should review applicable licensing requirements before redistribution or c
 
 # 🔐 COPYRIGHT & OWNERSHIP
 
-\<div align="center">
 
 ### DEVELOPED BY
 
@@ -361,7 +336,6 @@ Users should review applicable licensing requirements before redistribution or c
 
 Copyright © 2026 ByRooT
 
-\</div>
 
 The original source code, independently developed filtering logic, project architecture, and custom components are attributed to ByRooT, subject to applicable third-party licenses.
 
@@ -384,7 +358,6 @@ All rights to original project components are reserved by their respective copyr
 
 ---
 
-\<div align="center">
 
 # 🛡️ BYROOT
 
@@ -396,4 +369,3 @@ All rights to original project components are reserved by their respective copyr
 
 **Built for Security Research.**
 
-\</div>
