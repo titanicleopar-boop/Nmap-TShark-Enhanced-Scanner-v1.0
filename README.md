@@ -10,6 +10,18 @@
 
 <img width="70%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/5040d231-ccf0-4f1c-9b6c-08c7c6962c1b" />
 
+### 🎯 Advanced Port Verification & False-Positive Filtering
+
+The scanner combines Nmap scanning capabilities with Wireshark/TShark traffic analysis to improve port detection reliability and distinguish genuine open-port responses from potentially misleading results.
+
+- **False-Positive Detection:** Identifies potentially misleading port scan results.
+- **Port Verification:** Performs additional analysis to validate detected port states.
+- **Traffic-Based Analysis:** Uses packet-level inspection to provide additional verification context.
+- **Accurate Results:** Aims to reduce false-positive detections and improve the reliability of scan results.
+- **TCP/UDP Analysis:** Supports analysis of TCP and UDP port states.
+
+The goal is to identify genuinely responsive services while minimizing misleading port detection results.
+
 ---
 
 ### 🔍 ADVANCED RECONNAISSANCE
