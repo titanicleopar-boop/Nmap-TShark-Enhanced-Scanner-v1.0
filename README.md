@@ -24,7 +24,7 @@
 
 **Nmap-TShark-Enhanced-Scanner** is an advanced network reconnaissance and security analysis framework combining Nmap scanning capabilities with Wireshark/TShark network traffic analysis.
 
-Developed through months of experimentation, testing, and continuous improvements, this project focuses on improving port detection reliability and reducing misleading scan results.
+Developed through a long period of development, experimentation, testing, and continuous improvements, this project focuses on improving port detection reliability and reducing misleading scan results.
 
 The framework combines active network scanning with packet-level traffic analysis to provide additional visibility into discovered network services.
 
