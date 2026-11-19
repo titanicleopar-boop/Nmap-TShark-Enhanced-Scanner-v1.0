@@ -18,8 +18,6 @@
 
 ### 📊 AUTOMATED REPORTING
 
-
-
 ---
 
 # 📌 ABOUT THE PROJECT
