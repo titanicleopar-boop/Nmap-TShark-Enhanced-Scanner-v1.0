@@ -8,7 +8,7 @@
 
 **Intelligent Port Detection | Traffic Analysis | False-Positive Filtering**
 
-<img width="100%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/bb402a02-eeb3-47c7-8951-94a3908a26e2" />
+<img width="70%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/bb402a02-eeb3-47c7-8951-94a3908a26e2" />
 
 ---
 
