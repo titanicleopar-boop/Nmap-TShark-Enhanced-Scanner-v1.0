@@ -8,6 +8,8 @@
 
 **Intelligent Port Detection | Traffic Analysis | False-Positive Filtering**
 
+<img width="50%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/c8ab1623-4365-439f-b131-5bcc7f67940e" />
+
 ---
 
 ### 🔍 ADVANCED RECONNAISSANCE
@@ -121,8 +123,6 @@ The goal is to deliver an integrated and practical reconnaissance environment fo
 ---
 
 <img width="50%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/03af413d-1bbe-4a1e-93f2-652cee607e73">
-
-<img width="50%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/c8ab1623-4365-439f-b131-5bcc7f67940e" />
 
 
 # 📦 INSTALLATION
