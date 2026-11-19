@@ -1,12 +1,12 @@
 import os
 import sys
 import subprocess
-# 🎯 SANAL ORTAM (VENV) OTOMATİK BYPASS VE GLOBAL PYTHON YÖNLENDİRİCİSİ
+
 if hasattr(sys, 'real_prefix') or (sys.base_prefix != sys.prefix):
-    # Eğer kod venv içindeyse, Kali'nin ana sistemindeki gerçek Python motorunun yolunu bulur
+
     global_python = "/usr/bin/python3"
     if os.path.exists(global_python):
-        # Mevcut scripti, venv'i tamamen bypass ederek doğrudan ana sistem Python'ı ile yeniden ateşler
+
         cmd = [global_python] + sys.argv
         subprocess.run(cmd)
         sys.exit(0)
@@ -21,40 +21,40 @@ import ssl
 import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from ftplib import FTP
-# --- Gelişmiş JA3 TLS + HTTP/2 & HTTP/3 Sürüm Değişikliği Yaması ---
+
 import requests as ja3_requests
 class HttpVersion:
     V1_0 = 1
     V1_1 = 2
     V2 = 3
-# --- PROXY VE GİZLİLİK AYARLARI (ŞİMDİLİK PASİF) ---
+
 USE_PROXY = False  
 PROXY_LIST = [
     "http://127.0.0.1:8080",
     "socks5://127.0.0.1:9050",
 ]
 
-# --- SABİT DEĞİŞKENLER VE AYARLAR ---
+
 INPUT_FILE = "domainler.txt"  
 OUTPUT_DIR = "./rapor"
 STATUS_FILE = "tarama_durumu-root.json"
 WAF_PORT_WORDLIST = "port-wordlist.txt"
 UDP_PORT_WORDLIST = "udp-wordlist.txt"
 
-# --- XAMPP FTP SUNUCU AYARLARI ---
+
 FTP_HOST = "192.168.1.8"
 FTP_PORT = 21  
 FTP_USER = "root"
 FTP_PASS = "*******"
 FTP_CWD = "komodor/nmap"  
-# --- GENİŞLETİLMİŞ TÜM WEB VE VERİTABANI PORTLARI LİSTESİ ---
+
 WEB_PORTS = [
     "80", "443", "81", "3000", "5000", "8000", "8008", "8080", "8081", 
     "8443", "8834", "8880", "8888", "9000", "9043", "9443", 
     "2082", "2083", "2086", "2087", "3306", "1433", "5432", "1521", "27017", "6379"
 ]
 
-# --- PASİF WEB KAYNAK KODUNDA ARANACAK PANEL İPUCU KELİMELERİ ---
+
 INTELLIGENCE_KEYWORDS = [
     "admin", "panel", "login", "giris", "cpanel", "plesk", "dashboard",
     "username", "password", "kullanici", "sifre", "control", "management",
@@ -62,13 +62,12 @@ INTELLIGENCE_KEYWORDS = [
     "mysql", "mariadb", "postgresql", "redis", "mongodb", "oracle", "mssql"
 ]
 
-# --- SİBER İSTİHBARAT: HASSAS VERİ KAZIMA REGEX KALIPLARI (OSINT SCRAPER) ---
 SENSITIVE_REGEX = {
     "E-Posta Adresi": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}",
     "Gizli API Anahtarı (Token)": r"(?:key|token|secret|password|passwd|auth)(?:[\s|'|\"]*)=(?:[\s|'|\"]*)([a-zA-Z0-9_\-]{16,64})",
     "Veritabanı Bağlantı Cümlesi": r"(?:mongodb|mysql|postgresql|oracle|mssql):\/\/[^\s]+"
 }
-# --- GERÇEKÇİ USER-AGENT HAVUZU ---
+
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
@@ -77,10 +76,10 @@ USER_AGENTS = [
     "Mozilla/5.0 (compatible; Bingbot/2.0; +http://bing.com)"
 ]
 
-# --- GLOBAL DURUM DEĞİŞKENLERİ ---
+
 checkpoint_lock = threading.Lock()
 global_results = {}  
-scanning_active = True  # Otomatik kapanma için kontrol bayrağı
+scanning_active = True  
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -90,7 +89,7 @@ CYAN = "\033[96m"
 BOLD_GREEN = "\033[1;92m"
 BOLD_WHITE = "\033[1;97m"
 RESET = "\033[0m"
-# --- İNTERNET BAĞLANTI KORUYUCU (WATCHDOG) ---
+
 def wait_for_internet(target_name="Sistem"):
     first_drop = True
     while True:
@@ -112,7 +111,7 @@ def wait_for_internet(target_name="Sistem"):
                 print(".", end="", flush=True)
             time.sleep(3)
 
-# --- SİSTEM VE BAĞIMLILIK KONTROLLERİ ---
+
 def check_dependencies():
     if os.getuid() != 0:
         print(f"{RED}[-] Hata: ROOT yetkisi gereklidir! Lütfen bu scripti 'sudo python3 nmap.py' komutuyla çalıştırın.{RESET}")
@@ -135,7 +134,7 @@ def check_dependencies():
         
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
-# --- CHECKPOINT SİSTEMİ ---
+
 def load_checkpoint():
     if os.path.exists(STATUS_FILE):
         try:
@@ -162,7 +161,7 @@ def save_checkpoint(target, status_type, target_results=None):
             os.replace(tmp_file, STATUS_FILE)
         except Exception:
             pass
-# --- TEKİL YOL DOĞRULAMA YARDIMCISI (404 SÜZGEÇLİ VE CANLI PANEL AVCI MOTORU) ---
+
 def _verify_single_path_worker(base_url, path, request_proxies):
     test_url = f"{base_url}/{path}"
     try:
@@ -183,7 +182,7 @@ def _verify_single_path_worker(base_url, path, request_proxies):
     return None
 
 
-# --- HTTP RESPONSE HEADER YAPAY ZEKA ANALİZÖRÜ (FRAMEWORK DEŞİFRE MOTORU) ---
+
 def ai_analyze_headers(headers):
     tech_signatures = {
         "PHP (Laravel / Core)": ["phpsessid", "laravel_session", "x-powered-by: php"],
@@ -204,13 +203,13 @@ def ai_analyze_headers(headers):
                 break
                 
     return ", ".join(detected_frameworks) if detected_frameworks else "Saptanamadı (Özel/Güvenli Altyapı)"
-# --- AKILLI PASİF WEB İSTİHBARAT MOTORU (AI KURAL TABANLI FRAMEWORK ANALİZÖRLÜ) ---
+
 def fetch_web_intelligence(target, port):
     wait_for_internet(target)
     intel_data = {
         "title": "Bilinmiyor", 
         "server": "Bilinmiyor", 
-        "ai_framework": "Analiz Ediliyor...",
+        "ai_framework": "Analyzing...",
         "root_keywords": [], 
         "detected_links": [], 
         "link_keywords": {}, 
@@ -307,13 +306,13 @@ def fetch_web_intelligence(target, port):
                 intel_data["sensitive_data"][data_type] = unique_data[0:5]
                 
     return intel_data
-# --- MERKEZİ GÖSTERGE PANELİ ÜRETİCİSİ (DİNAMİK JAVASCRIPT FILTRE VE AI DESTEKLİ) ---
+
 def build_and_save_single_list(local_index_path, chosen_index_name):
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Siber Keşif Merkezi Raporu - {chosen_index_name}-tcp-udp</title>
+    <title>Cyber Reconnaissance Center Report - {chosen_index_name}-tcp-udp</title>
     <style>
         body {{ font-family: 'Courier New', Courier, monospace; background-color: #1e1e1e; color: #cfcfcf; padding: 20px; line-height: 1.4; }}
         h1 {{ color: #ffffff; border-bottom: 3px solid #e51c23; padding-bottom: 10px; text-transform: uppercase; font-size: 22px; margin-bottom: 5px; }}
@@ -347,10 +346,10 @@ def build_and_save_single_list(local_index_path, chosen_index_name):
     </style>
 </head>
 <body>
-<h1>=== RECON GENIUSES WIRESHARK KANITLI MERKEZİ RAPORU ===</h1>
+<h1>=== RECON GENIUSES WIRESHARK VERIFIED CENTRAL REPORT ===</h1>
 
 <div class="control-panel">
-    <input type="text" id="reconSearch" class="search-box" placeholder="🔍 Hedef Domain, IP, Port, Servis veya Sızan Veriler İçinde Canlı Ara..." onkeyup="filterReconReport()">
+    <input type="text" id="reconSearch" class="search-box" placeholder="🔍 Search live across Target Domains, IPs, Ports, Services, or Exposed Data..." onkeyup="filterReconReport()">
     <button class="filter-btn active" id="btn-all" onclick="setFilter('all')">HEPSİNİ GÖSTER</button>
     <button class="filter-btn" id="btn-waf" onclick="setFilter('waf')">SADECE WAF'LILAR</button>
     <button class="filter-btn" id="btn-crit" onclick="setFilter('crit')">KRİTİK PORT BULUNANLAR</button>
@@ -374,7 +373,7 @@ def build_and_save_single_list(local_index_path, chosen_index_name):
             html_content += """\n        <div class="web-intel-box">"""
             for port, intel in data["web_intelligence"].items():
                 html_content += f"""
-            <div class="intel-title">🌐 Şüpheli / Gizli Web Yönetim Arayüzü Bulgusu (Port {port}):</div>
+            <div class="intel-title">🌐 Suspicious / Hidden Web Management Interface Finding (Port {port}):</div>
             <div><b>Sayfa Başlığı (Title):</b> {intel['title']}</div>
             <div><b>Sunucu Teknolojisi (Server):</b> {intel['server']}</div>
             <div style="color: #00ff66;"><b>🤖 AI Framework Teşhisi (Cookie/Header):</b> {intel.get('ai_framework', 'Saptanamadı')}</div>"""
@@ -463,8 +462,8 @@ function filterReconReport() {
 
     with open(local_index_path, "w", encoding="utf-8") as f:
         f.write(html_content)
-    print(f"{BOLD_GREEN}[+] Rapor başarıyla yerel rapora yazıldı: {local_index_path}{RESET}")
-# --- HTTP WAF İSMİ TESPİT ETME MOTORU ---
+    print(f"{BOLD_GREEN}[+] Report successfully saved locally: {local_index_path}{RESET}")
+
 def detect_waf_name(target):
     random_ua = random.choice(USER_AGENTS)
     waf_ident_cmd = [
@@ -478,7 +477,6 @@ def detect_waf_name(target):
     except Exception: pass
     return "Şüpheli Ağ Yapısı (WAF Olası)"
 
-# --- PCAP PAKET SAYICI VE ANALİZ MOTORU ---
 def count_pcap_packets(pcap_path):
     if not os.path.exists(pcap_path):
         return 0
@@ -488,7 +486,7 @@ def count_pcap_packets(pcap_path):
         return len(lines)
     except Exception:
         return 0
-# --- WIRESHARK (TSHARK) PCAP KANIT MOTORU ---
+
 def verify_ports_with_wireshark(pcap_path, detected_tcp_ports):
     if not detected_tcp_ports or not os.path.exists(pcap_path):
         return []
@@ -509,7 +507,7 @@ def verify_ports_with_wireshark(pcap_path, detected_tcp_ports):
         return detected_tcp_ports
         
     return verified_ports if verified_ports else detected_tcp_ports
-# --- GELİŞMİŞ DEEP-HANDSHAKE SAHTE PORT ELEME MOTORU (ZAMAN AŞIMI GÜVENLİ) ---
+
 def deep_verify_fake_ports(target, suspect_ports, is_lan=False):
     if not suspect_ports:
         return [], []
@@ -569,7 +567,7 @@ def deep_verify_fake_ports(target, suspect_ports, is_lan=False):
         pass
         
     return real_ports, html_lines
-# --- DNS CNAME WAF TESPİT MODÜLÜ ---
+
 def check_cname_waf(target):
     if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", target):
         return None
@@ -583,7 +581,7 @@ def check_cname_waf(target):
     except Exception: pass
     return None
 
-# --- FTP YÜKLEME MODÜLÜ (SADECE RAPOR DOSYASI İÇİN) ---
+
 def upload_report_to_ftp(local_file_path, remote_file_name):
     wait_for_internet("FTP İstasyonu") 
     try:
@@ -602,8 +600,8 @@ def upload_report_to_ftp(local_file_path, remote_file_name):
                 ftp.storbinary(f"STOR {remote_file_name}", file_to_upload)
             print(f"{BOLD_GREEN}[✓] {remote_file_name} başarıyla XAMPP htdocs/{FTP_CWD}/ altına aktarıldı!{RESET}")
     except Exception as e:
-        print(f"{YELLOW}[!] FTP Aktarım Uyarısı ({remote_file_name}): Detay: {e}{RESET}")
-# --- ANA TARAMA FONKSİYONU - BÖLÜM 1 (DOĞRU DENGELENMİŞ WAF REJİMİ) ---
+        print(f"{YELLOW}[!] FTP Transfer Warning ({remote_file_name}): Detay: {e}{RESET}")
+
 def scan_single_target(target, thread_id, checkpoint_data):
     current_checkpoint = load_checkpoint()
     target_cp = current_checkpoint.get(target, {}) if isinstance(current_checkpoint.get(target), dict) else {}
@@ -632,7 +630,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
         if "WAF" not in waf_name and "Şüpheli" not in waf_name:
             waf_name = "Cloudflare / Üst Düzey Kurumsal Korunma"
 
-    # --- AKILLI PORT SEÇİM ŞANZIMANI ---
+
     target_tcp_param = f"-p{','.join(WEB_PORTS)}" 
     evasion_args_tcp = []
     evasion_args_udp = []
@@ -660,13 +658,13 @@ def scan_single_target(target, thread_id, checkpoint_data):
             target_tcp_param = f"-p{','.join(WEB_PORTS)}"
 
         evasion_args_tcp = [
-            "--scan-delay", "20ms",        # Zaman aşımını önleyen hafif gecikme
+            "--scan-delay", "20ms",        
             "--max-scan-delay", "80ms",    
             "--max-parallelism", "5",      
-            "--max-retries", "3",          # Kaçan paketleri yakalamak için dengeli deneme
-            "--min-rate", "30",            # Hız 10'dan 30'a çıkartıldı (Timeout engellendi)
+            "--max-retries", "3",          
+            "--min-rate", "30",           
             "--randomize-hosts",
-            "--data-length", "24"          # Paket manipülasyonu aktif
+            "--data-length", "24"          
         ]
         evasion_args_udp = ["--scan-delay", "100ms", "--max-parallelism", "2", "--max-retries", "2", "--min-rate", "10"]
     else:
@@ -682,7 +680,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
     pcap_file_path = os.path.join(OUTPUT_DIR, f"{target}_live_traffic.pcap")
     if target_cp.get("tcp") != "COMPLETED":
         wait_for_internet(target)
-        print(f"{YELLOW}[*] [{target}] TCP Canlı Tarama Başlatıldı ({target_tcp_param})...{RESET}")
+        print(f"{YELLOW}[*] [{target}] Starting TCP Full Port Scan ({target_tcp_param})...{RESET}")
         
         tshark_proc = None
         if not is_lan:
@@ -714,11 +712,11 @@ def scan_single_target(target, thread_id, checkpoint_data):
             except Exception: pass
                 
         save_checkpoint(target, "tcp")
-    # --- WORDLIST TABANLI OPTİMİZE EDİLMİŞ UDP TARAMA MOTORU ---
+
     if target_cp.get("udp") != "COMPLETED":
         wait_for_internet(target)
         
-        # Varsayılan yaygın UDP portları (Dosya bulunamazsa sızmayı önlemek için can simidi)
+
         target_udp_param = "-p 53,67,68,69,123,161,162,443,500,4500"
         if os.path.exists(UDP_PORT_WORDLIST):
             try:
@@ -732,7 +730,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
 
         print(f"{BLUE}[*] [{target}] UDP Canlı Tarama Başlatıldı ({target_udp_param})...{RESET}")
         
-        # Sadece belirlenen dosyadan gelen listeyi tarar (Yıllar sürmesini engeller)
+
         nmap_udp_cmd = ["nmap", "-sU", target_udp_param] + evasion_args_udp + ["-Pn", "-n", target]
         try:
             udp_process = subprocess.Popen(nmap_udp_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -748,7 +746,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
         except Exception:
             pass
 
-    # --- WAF ACİL DURUM KURTARICISI ---
+
     if not nmap_detected_tcp and not is_lan:
         print(f"   {YELLOW}[🛡️ DETECTED BLACKHOLE] -> {target} için hiç açık port bulunamadı! WAF bypass modunda HTTP/HTTPS servisleri doğrudan yoklanıyor...{RESET}")
         for emergency_port in ["80", "443"]:
@@ -835,7 +833,7 @@ def scan_single_target(target, thread_id, checkpoint_data):
         global_results[target] = target_results_structure
         
     save_checkpoint(target, "udp", target_results=target_results_structure)
-# --- OTOMATİK ZAMANLAYICI KORUYUCU MOTORU ---
+
 def periodic_html_saver(local_path, report_name, remote_name):
     while scanning_active:
         time.sleep(600)
@@ -851,7 +849,7 @@ def periodic_html_saver(local_path, report_name, remote_name):
                 except Exception as e:
                     print(f"{RED}[-] Otomatik yedekleme esnasında rapor yazılamadı: {e}{RESET}\n")
 
-# --- ORKESTRASYON MOTORU ---
+
 def run_scan():
     global scanning_active
     check_dependencies()
@@ -899,7 +897,7 @@ def run_scan():
     )
     saver_thread.start()
     
-    # Sıralı tekli işleme rejimi (Sorunsuz elenme için max_workers=1)
+
     with ThreadPoolExecutor(max_workers=1) as executor:
         futures = [executor.submit(scan_single_target, target, i, checkpoint_data) for i, target in enumerate(targets, start=1)]
         for future in futures:
@@ -910,7 +908,7 @@ def run_scan():
             except Exception as e: 
                 print(f"[-] Thread Yürütme hatası: {e}")
                 
-    print(f"\n{GREEN}[*] Tüm sıralı taramalar bitti. Terminal Çıktı Paneli Hazırlanıyor...{RESET}\n")
+    print(f"\n{GREEN}[*] All sequential scans completed. Terminal Çıktı Paneli Hazırlanıyor...{RESET}\n")
     
     if global_results:
         print(f"{BOLD_WHITE}============ HEDEF DOMAIN / IP LISTESI ============{RESET}")
@@ -926,7 +924,7 @@ def run_scan():
                     color = BLUE if proto == "udp" else GREEN
                     print(f"   ↳ {color}[{proto.upper()} {p_num}]{RESET} {raw_text}")
             else:
-                print(f"   ↳ {RED}[!] Bu hedefe ait hiçbir doğrulanmış gerçek açık port bulunamadı.{RESET}")
+                print(f"   ↳ {RED}[!] No verified open ports were found for this target.{RESET}")
         print(f"\n{BOLD_WHITE}========================================================{RESET}\n")
 
         build_and_save_single_list(local_index_path, clean_report_name)
@@ -937,7 +935,7 @@ def run_scan():
     else:
         print(f"{RED}[-] Hata: Listelenecek hiçbir tarama verisi toparlanamadı.{RESET}")
 
-    # --- KESİN KAPANIŞ SİNYALİ ---
+
     scanning_active = False  
     print(f"\n{BOLD_GREEN}[✓] Arka plan zamanlayıcıları kapatıldı. Program sonlandırılıyor...{RESET}")
 
