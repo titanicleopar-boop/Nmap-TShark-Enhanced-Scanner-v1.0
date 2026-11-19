@@ -10,7 +10,7 @@
 
 <img width="70%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/5040d231-ccf0-4f1c-9b6c-08c7c6962c1b" />
 
-<img width="70%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/f67e4a19-990e-450a-8cd7-4932d6042f1c" />
+<img width="30%" alt="Nmap-TShark Enhanced Scanner Output" src="https://github.com/user-attachments/assets/f67e4a19-990e-450a-8cd7-4932d6042f1c" />
 
 https://www.youtube.com/watch?v=SA3qvTmIz1s
 
