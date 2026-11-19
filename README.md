@@ -22,31 +22,50 @@
 
 # 📌 ABOUT THE PROJECT
 
-**Nmap-TShark-Enhanced-Scanner** is an advanced network reconnaissance and security analysis framework combining Nmap scanning capabilities with Wireshark/TShark network traffic analysis.
+**Nmap-TShark-Enhanced-Scanner** is an advanced network reconnaissance and security analysis framework that combines Nmap's scanning capabilities with Wireshark/TShark network traffic analysis.
 
-Developed through a long period of development, experimentation, testing, and continuous improvements, this project focuses on improving port detection reliability and reducing misleading scan results.
+Developed through an extensive period of development, experimentation, testing, and continuous improvement, this project focuses on enhancing port detection reliability and reducing false-positive results.
 
-The framework combines active network scanning with packet-level traffic analysis to provide additional visibility into discovered network services.
+The framework combines active network scanning with packet-level traffic analysis to provide deeper visibility into discovered network services.
 
 ### 🌐 Bulk Domain & Subdomain Scanning
 
 The scanner supports scanning multiple domains and subdomains through a simple text-based input system.
 
 - Add one or multiple domains or subdomains to `domainler.txt`.
-- Supports both individual targets and large target lists.
+- Supports individual targets as well as large target lists.
 - Automatically processes targets sequentially.
-- No need to manually start each domain scan.
+- No need to manually start a scan for each domain.
+
+**Example `domainler.txt`:**
+
+```text
+example.com
+www.example.com
+api.example.com
+mail.example.com
+dev.example.com
+test.example.com
+```
+
+Add your authorized target domains and subdomains to `domainler.txt`, save the file, and start the scanner:
+
+```bash
+nano domainler.txt
+```
+
+The scanner will automatically process the listed targets one by one.
 
 ### 🔄 Automatic Scan Recovery
 
-The framework is designed to handle unexpected interruptions and resume scanning progress.
+The framework is designed to handle unexpected interruptions and resume scanning from the last saved progress.
 
 - **Internet Disconnection:** Scanning pauses when the internet connection is lost and resumes when connectivity is restored.
 - **Power Outage:** Saved progress allows scanning to continue after the computer restarts.
 - **System Shutdown:** Previously completed progress is preserved.
-- **Automatic Recovery:** Restarting the scanner allows it to continue from its saved progress instead of starting everything from the beginning.
+- **Automatic Recovery:** Restarting the scanner allows it to continue from its saved progress instead of starting from the beginning.
 
-The goal is to deliver an integrated and practical reconnaissance environment for authorized security research, combining intelligent scanning, traffic analysis, bulk target processing, and recovery mechanisms.
+The goal is to provide an integrated and practical reconnaissance environment for authorized security research, combining intelligent scanning, traffic analysis, bulk target processing, and automatic recovery mechanisms.
 
 ---
 
