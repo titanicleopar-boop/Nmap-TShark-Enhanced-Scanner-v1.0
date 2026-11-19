@@ -93,6 +93,29 @@ The goal is to provide an integrated and practical reconnaissance environment fo
 - Protocol identification
 - Traffic inspection
 
+### 🔐 Proxy Support
+
+The scanner includes optional proxy configuration, allowing users to enable or disable proxy usage through simple configuration settings.
+
+- **Proxy Toggle:** Enable or disable proxy support using `USE_PROXY`.
+- **Multiple Proxy Entries:** Configure multiple proxy servers in `PROXY_LIST`.
+- **HTTP Proxy Support:** Supports HTTP proxy configurations.
+- **SOCKS5 Proxy Support:** Supports SOCKS5 proxy configurations.
+- **Flexible Configuration:** Easily customize proxy addresses and ports.
+
+**Example Configuration:**
+
+```python
+USE_PROXY = False
+
+PROXY_LIST = [
+    "http://127.0.0.1:8080",
+    "socks5://127.0.0.1:9050",
+]
+```
+
+Set `USE_PROXY = True` to enable proxy usage, or leave it as `False` to disable it.
+
 
 ### 🧠 Intelligent Filtering
 
