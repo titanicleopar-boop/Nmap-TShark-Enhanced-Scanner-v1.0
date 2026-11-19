@@ -9,6 +9,8 @@
 \
 
 <img width="220" height="260" alt="Nmap-TShark Enhanced Scanner Logo" src="https://github.com/user-attachments/assets/03af413d-1bbe-4a1e-93f2-652cee607e73">
+<img width="100%" alt="Nmap-TShark Enhanced Scanner Output" src="[https://github.com](https://github.com/user-attachments/assets/03af413d-1bbe-4a1e-93f2-652cee607e73)">
+
 
 
 \
